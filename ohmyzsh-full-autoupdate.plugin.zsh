@@ -35,6 +35,7 @@ fi
 # Welcome screen
 #######################################
 echo ""
+echo "${bold}Start ${colorBlue}Oh My Zsh full-autoupdate${reset}"
 echo "${bold}Updating plugins and themes Oh My ZSH...${reset}"
 echo "${colorYellow}----------------------------------------${reset}"
 echo ""
