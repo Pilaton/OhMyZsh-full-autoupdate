@@ -38,6 +38,12 @@ The update frequency depends on the Oh My Zsh settings, by default every 13 days
 
 💡 Note: It can be changed with the parameter `export UPDATE_ZSH_DAYS=13` in `~/.zshrc`.
 
+<br>
+<div align="center">
+    <img src="./doc/images/terminal_screenshot.jpg" alt="OhMyZsh Full-autoupdate Terminal screenshot" width="700">
+</div>
+<br>
+
 ## Manual start
 
 If you still need to start the update manually, just type `omz update` in the terminal, wait for the Oh My Zsh update to finish and restart the terminal. 😎
