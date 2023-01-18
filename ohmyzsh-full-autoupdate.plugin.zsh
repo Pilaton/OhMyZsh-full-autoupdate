@@ -16,7 +16,7 @@
 #######################################
 # If our label exists in the file "${ZSH_CACHE_DIR}/.zsh-update", skip updating plugins and themes
 #######################################
-if [[ ! -z $LABEL_FULL_AUTOUPDATE ]]; then
+if [[ $(grep "LABEL_FULL_AUTOUPDATE" "${ZSH_CACHE_DIR}/.zsh-update") ]]; then
     return 
 fi
 
