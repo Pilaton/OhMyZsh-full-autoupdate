@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.1.1](https://www.github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.1.0...v1.1.1) (2023-01-18)
+
+
+### 🛠️ Bug Fixes
+
+* Fixed a bug with the constant launch of the plugin when opening a new terminal window, if the automatic OMZ update was disabled by you. ([e323997](https://www.github.com/Pilaton/OhMyZsh-full-autoupdate/commit/e323997a14b288639e984856d1b2670a3e94a071))
+
 ## [1.1.0](https://www.github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.0.1...v1.1.0) (2022-12-02)
 
 
