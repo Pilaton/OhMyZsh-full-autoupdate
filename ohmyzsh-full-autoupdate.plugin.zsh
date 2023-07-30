@@ -25,6 +25,7 @@ fi
 #######################################
 if [[ ! -z $(which tput 2> /dev/null) ]]; then
     bold=$(tput bold)
+    colorRed=$(tput setaf 1)
     colorGreen=$(tput setaf 2)
     colorYellow=$(tput setaf 3)
     colorBlue=$(tput setaf 4)
@@ -111,6 +112,7 @@ _savingLabel() {
 #######################################
 omzFullUpdate() {
     local arrayPackages=( $(find -L "${ZSH_CUSTOM}" -type d -name ".git") )
+    local current_dir=$(pwd)  # Save the current directory
 
     for package in ${arrayPackages[@]}; do
         local urlGithub=$(_getUrlGithub "$package")
@@ -118,10 +120,47 @@ omzFullUpdate() {
         local packageDir=$(dirname "$package")
         local packageName=$(basename "$packageDir")
 
-        echo "${colorYellow}Updating ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset} -> ${colorBlue}($urlGithub)${reset}"
-        git -C "${packageDir}" pull
+        cd ${packageDir}
+
+        # Fetch all tags
+        git fetch --tags >/dev/null 2>&1
+
+        # Get latest and current tag
+        local latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
+        local current_tag=$(git describe --tags --exact-match 2>/dev/null)
+
+        # If no tags are found, use the default branch (main/master)
+        if [ -z "$current_tag" ] && [ -z "$latest_tag" ]; then
+            default_branch=$(git -C "${packageDir}" remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+
+            echo "${colorYellow}No tags on ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset} " \
+                "${colorBlue}($urlGithub)${reset}" \
+                "switching to ${colorRed}${default_branch}${reset}"
+            git fetch --all >/dev/null 2>&1
+            git switch $default_branch >/dev/null 2>&1 || exit 1
+            git pull origin $default_branch >/dev/null 2>&1
+            echo ""
+            continue
+        fi
+
+        # Skip update if already on latest tag
+        if [ -n "$current_tag" ] && [ "$current_tag" = "$latest_tag" ]; then
+            echo "${colorYellow}Skipping ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset}" \
+                 "${colorBlue}($urlGithub)${reset}" \
+                 "as it's already on the latest tag ${colorRed}${current_tag}${reset}"
+            echo ""
+            continue
+        fi
+
+        # Update to the latest tag
+        echo "${colorYellow}Updating ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset}" \
+             "${colorBlue}($urlGithub)${reset}" \
+             "to ${colorRed}${latest_tag}${reset}"
+        git checkout $latest_tag >/dev/null 2>&1
         echo ""
     done
+
+    cd "${current_dir}"
 
     # Start the function of saving the label
     _savingLabel
