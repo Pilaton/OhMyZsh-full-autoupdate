@@ -23,7 +23,7 @@ fi
 #######################################
 # Set colors if "tput" is present in the system
 #######################################
-if [[ ! -z $(which tput 2> /dev/null) ]]; then
+if [[ -n $(command -v tput) ]]; then
     bold=$(tput bold)
     colorGreen=$(tput setaf 2)
     colorYellow=$(tput setaf 3)
@@ -76,8 +76,8 @@ printf '\n'
 #   [text...] Url
 #######################################
 _getUrlGithub() {
-    local URL=$(grep 'url =' "${1}/config" | grep -o 'https://\S*' | sed 's/\.git//')
-    echo $URL
+    local url=$(grep 'url =' "$1/config" | grep -o 'https://\S*' | sed 's/\.git//')
+    echo $url
 }
 
 #######################################
@@ -88,9 +88,10 @@ _getUrlGithub() {
 #   [text...] Name category
 #######################################
 _getNameCustomCategory() {
-    case ${1} in
-        *"plugins"*) echo "Plugin" ; return 0 ;;
-        *"themes"*)  echo "Theme"  ; return 0 ;;
+    local path=$1
+    case $path in
+        *"plugins"*) echo "Plugin" ;;
+        *"themes"*)  echo "Theme" ;;
     esac
 }
 
@@ -101,7 +102,6 @@ _getNameCustomCategory() {
 #######################################
 _savingLabel() {
     echo "\nLABEL_FULL_AUTOUPDATE=true" >> "${ZSH_CACHE_DIR}/.zsh-update"
-    return 0
 }
 
 #######################################
@@ -110,7 +110,7 @@ _savingLabel() {
 #   ZSH_CUSTOM
 #######################################
 omzFullUpdate() {
-    local arrayPackages=( $(find -L "${ZSH_CUSTOM}" -type d -name ".git") )
+    local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
 
     for package in ${arrayPackages[@]}; do
         local urlGithub=$(_getUrlGithub "$package")
@@ -118,12 +118,13 @@ omzFullUpdate() {
         local packageDir=$(dirname "$package")
         local packageName=$(basename "$packageDir")
 
-        echo "${colorYellow}Updating ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset} -> ${colorBlue}($urlGithub)${reset}"
-        git -C "${packageDir}" pull
-        echo ""
+        printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
+        if ! git -C "$packageDir" pull; then
+            printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
+        fi
+        printf '\n'
     done
 
-    # Start the function of saving the label
     _savingLabel
 }
 omzFullUpdate
