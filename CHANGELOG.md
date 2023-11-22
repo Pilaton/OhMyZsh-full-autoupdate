@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.1.1...v1.2.0) (2023-11-22)
+
+
+### 🎉 Features
+
+* Many small improvements ([47118a5](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/47118a524101fbc9b419b474b75277b16ad07e0b))
+
 ### [1.1.1](https://www.github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.1.0...v1.1.1) (2023-01-18)
 
 
