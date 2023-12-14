@@ -25,6 +25,7 @@ fi
 #######################################
 if [[ -n $(command -v tput) ]]; then
   bold=$(tput bold)
+  colorRed=$(tput setaf 1)
   colorGreen=$(tput setaf 2)
   colorYellow=$(tput setaf 3)
   colorBlue=$(tput setaf 4)
@@ -118,11 +119,52 @@ omzFullUpdate() {
     local packageDir=$(dirname "$package")
     local packageName=$(basename "$packageDir")
 
-    printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
-    if ! git -C "$packageDir" pull; then
-      printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
+    # shorthand for git -C "${packageDir}"
+   function gitcp {
+     git -C "$packageDir" "$@"
+   }
+
+    # Fetch all tags
+    gitcp fetch --tags >/dev/null 2>&1
+
+    # Get latest and current tag
+    local latest_tag=$(gitcp describe --tags $(gitcp rev-list --tags --max-count=1) 2>/dev/null)
+    local current_tag=$(gitcp describe --tags --exact-match 2>/dev/null)
+
+    # If no tags are found, use the default branch (main/master)
+    if [ -z "$current_tag" ] && [ -z "$latest_tag" ]; then
+        default_branch=$(gitcp remote show origin | grep 'HEAD branch' | awk '{print $NF}')
+
+        echo "${colorYellow}No tags on ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset} " \
+            "${colorBlue}($urlGithub)${reset}" \
+            "switching to ${colorRed}${default_branch}${reset}"
+        gitcp fetch --all >/dev/null 2>&1
+        gitcp switch $default_branch >/dev/null 2>&1 || exit 1
+        gitcp pull origin $default_branch >/dev/null 2>&1
+        echo ""
+        continue
     fi
-      printf '\n'
+
+    # Skip update if already on latest tag
+    if [ -n "$current_tag" ] && [ "$current_tag" = "$latest_tag" ]; then
+        echo "${colorYellow}Skipping ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset}" \
+             "${colorBlue}($urlGithub)${reset}" \
+             "as it's already on the latest tag ${colorRed}${current_tag}${reset}"
+        echo ""
+        continue
+    fi
+
+    # Update to the latest tag
+    error_message=$(gitcp checkout $latest_tag 2>&1)
+    if [ $? -ne 0 ]; then
+      printf '%sError updating %s: %s%s\n' "$colorRed" "$packageName" "$error_message" "$reset"
+    else
+      echo "${colorYellow}Updating ${nameCustomCategory}${reset} — ${colorGreen}${packageName}${reset}" \
+           "${colorBlue}($urlGithub)${reset}" \
+           "to ${colorRed}${latest_tag}${reset}"
+    fi
+    echo ""
+
   done
 
   _savingLabel
