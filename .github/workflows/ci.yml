@@ -1,0 +1,15 @@
+name: 🚀 release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🕺 release
+        uses: GoogleCloudPlatform/release-please-action@v4
+        with:
+          release-type: simple

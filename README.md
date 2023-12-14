@@ -10,7 +10,7 @@
 
 ## What is it
 
-As you probably know, when you update Oh My Zsh, your plugins and themes installed in the `~/.oh-my-zsh/custom` folder are not updated.  
+As you probably know, when you update Oh My Zsh, your plugins and themes installed in the `~/.oh-my-zsh/custom` folder are not updated.
 
 This plugin solves this problem and automatically updates your plugins and themes.
 
@@ -18,15 +18,15 @@ This plugin solves this problem and automatically updates your plugins and theme
 
 1. Clone this repository into `$ZSH_CUSTOM/plugins` (`~/.oh-my-zsh/custom/plugins`)
 
-    ```bash
-    git clone https://github.com/Pilaton/OhMyZsh-full-autoupdate.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ohmyzsh-full-autoupdate
-    ```
+   ```bash
+   git clone https://github.com/Pilaton/OhMyZsh-full-autoupdate.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/ohmyzsh-full-autoupdate
+   ```
 
 2. Add the plugin to the Oh My Zsh plugin list in the `~/.zshrc` file:
 
-    ```bash
-    plugins=(... ohmyzsh-full-autoupdate)
-    ```
+   ```bash
+   plugins=(... ohmyzsh-full-autoupdate)
+   ```
 
 3. Start a new terminal session.
 
@@ -34,7 +34,7 @@ This plugin solves this problem and automatically updates your plugins and theme
 
 The plugin **works completely automatically**.  
 The update of all OMZ themes and plugins is triggered the next time a new terminal session is opened, after the update of Oh My Zsh.  
-The update frequency depends on the Oh My Zsh settings, by default every 13 days.  
+The update frequency depends on the Oh My Zsh settings, by default every 13 days.
 
 💡 Note: It can be changed with the parameter `export UPDATE_ZSH_DAYS=13` in `~/.zshrc`.
 

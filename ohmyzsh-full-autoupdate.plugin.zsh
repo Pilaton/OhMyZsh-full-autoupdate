@@ -17,18 +17,18 @@
 # If our label exists in the file "${ZSH_CACHE_DIR}/.zsh-update", skip updating plugins and themes
 #######################################
 if [[ $(grep "LABEL_FULL_AUTOUPDATE" "${ZSH_CACHE_DIR}/.zsh-update") ]]; then
-    return 
+  return 
 fi
 
 #######################################
 # Set colors if "tput" is present in the system
 #######################################
 if [[ -n $(command -v tput) ]]; then
-    bold=$(tput bold)
-    colorGreen=$(tput setaf 2)
-    colorYellow=$(tput setaf 3)
-    colorBlue=$(tput setaf 4)
-    reset=$(tput sgr0)
+  bold=$(tput bold)
+  colorGreen=$(tput setaf 2)
+  colorYellow=$(tput setaf 3)
+  colorBlue=$(tput setaf 4)
+  reset=$(tput sgr0)
 fi
 
 #######################################
@@ -76,8 +76,8 @@ printf '\n'
 #   [text...] Url
 #######################################
 _getUrlGithub() {
-    local url=$(grep 'url =' "$1/config" | grep -o 'https://\S*' | sed 's/\.git//')
-    echo $url
+  local url=$(grep 'url =' "$1/config" | grep -o 'https://\S*' | sed 's/\.git//')
+  echo $url
 }
 
 #######################################
@@ -88,11 +88,11 @@ _getUrlGithub() {
 #   [text...] Name category
 #######################################
 _getNameCustomCategory() {
-    local path=$1
-    case $path in
-        *"plugins"*) echo "Plugin" ;;
-        *"themes"*)  echo "Theme" ;;
-    esac
+  local path=$1
+  case $path in
+    *"plugins"*) echo "Plugin" ;;
+    *"themes"*)  echo "Theme" ;;
+  esac
 }
 
 #######################################
@@ -101,7 +101,7 @@ _getNameCustomCategory() {
 #   ZSH_CACHE_DIR
 #######################################
 _savingLabel() {
-    echo "\nLABEL_FULL_AUTOUPDATE=true" >> "${ZSH_CACHE_DIR}/.zsh-update"
+  echo "\nLABEL_FULL_AUTOUPDATE=true" >> "${ZSH_CACHE_DIR}/.zsh-update"
 }
 
 #######################################
@@ -110,21 +110,21 @@ _savingLabel() {
 #   ZSH_CUSTOM
 #######################################
 omzFullUpdate() {
-    local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
+  local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
 
-    for package in ${arrayPackages[@]}; do
-        local urlGithub=$(_getUrlGithub "$package")
-        local nameCustomCategory=$(_getNameCustomCategory "$package")
-        local packageDir=$(dirname "$package")
-        local packageName=$(basename "$packageDir")
+  for package in ${arrayPackages[@]}; do
+    local urlGithub=$(_getUrlGithub "$package")
+    local nameCustomCategory=$(_getNameCustomCategory "$package")
+    local packageDir=$(dirname "$package")
+    local packageName=$(basename "$packageDir")
 
-        printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
-        if ! git -C "$packageDir" pull; then
-            printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
-        fi
-        printf '\n'
-    done
+    printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
+    if ! git -C "$packageDir" pull; then
+      printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
+    fi
+      printf '\n'
+  done
 
-    _savingLabel
+  _savingLabel
 }
 omzFullUpdate
