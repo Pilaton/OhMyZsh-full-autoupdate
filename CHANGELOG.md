@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.0...v1.2.1) (2023-12-14)
+
+
+### Bug Fixes
+
+* **docs:** Made edits ([ed88217](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/ed88217478b4730516a9f17a3a00577fd8cbcc6e))
+* **stylistics:** Corrected indentation in the code ([412c12b](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/412c12bc1bc55b001ef9958351dad4f156793c7d))
+
 ## [1.2.0](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.1.1...v1.2.0) (2023-11-22)
 
 
