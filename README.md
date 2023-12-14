@@ -34,7 +34,7 @@ This plugin solves this problem and automatically updates your plugins and theme
 
 The plugin **works completely automatically**.  
 The update of all OMZ themes and plugins is triggered the next time a new terminal session is opened, after the update of Oh My Zsh.  
-The update frequency depends on the Oh My Zsh settings, by default every 13 days.
+The update frequency depends on the Oh My Zsh settings, by default **every 13 days**.
 
 💡 Note: It can be changed with the parameter `export UPDATE_ZSH_DAYS=13` in `~/.zshrc`.
 
