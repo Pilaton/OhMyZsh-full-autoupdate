@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.1...v1.2.2) (2024-09-16)
+
+
+### Bug Fixes
+
+* Ensure LF line endings for shell scripts ([024fc36](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/024fc36287cee66ee766c5d34322e55cb316129e))
+
 ## [1.2.1](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.0...v1.2.1) (2023-12-14)
 
 
