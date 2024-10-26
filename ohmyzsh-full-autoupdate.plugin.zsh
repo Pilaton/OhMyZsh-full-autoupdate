@@ -12,7 +12,6 @@
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 #######################################
 # If our label exists in the file "${ZSH_CACHE_DIR}/.zsh-update", skip updating plugins and themes
 #######################################
@@ -105,25 +104,33 @@ _savingLabel() {
 }
 
 #######################################
-# We get a list of available plugins and update them.
+# We get a list of available plugins and update them with parallel workers.
 # Globals:
 #   ZSH_CUSTOM
 #######################################
 omzFullUpdate() {
   local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
-
-  for package in ${arrayPackages[@]}; do
+  local num_workers=$( printf "%.0f" "${ZSH_CUSTOM_AUTOUPDATE_NUM_WORKERS:-16}" )
+  
+  set +m
+  for package in "${arrayPackages[@]}"; do
     local urlGithub=$(_getUrlGithub "$package")
     local nameCustomCategory=$(_getNameCustomCategory "$package")
     local packageDir=$(dirname "$package")
     local packageName=$(basename "$packageDir")
 
     printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
-    if ! git -C "$packageDir" pull; then
-      printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
+    
+    if ! test $num_workers -gt 1 2> /dev/null || \
+       test $num_workers -gt 16 2> /dev/null; then
+      git -C "$packageDir" pull
+    else
+      ((i=(i+1)%$num_workers)) || wait
+      (git -C "$packageDir" pull) &
     fi
-      printf '\n'
   done
+  wait
+  set -m
 
   _savingLabel
 }
