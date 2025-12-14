@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.2...v1.3.0) (2025-12-14)
+
+
+### Features
+
+* add configurable remote and major plugin improvements ([87bb7bb](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/87bb7bb8eb0bd2dadda8062b2848f1da1d511077))
+
+
+### Bug Fixes
+
+* correct GitHub URLs and add missing colorRed variable ([fd6bc2c](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/fd6bc2cdedb4cf7f9da0ab625e09b200b117f55a))
+
 ## [1.2.2](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.1...v1.2.2) (2024-09-16)
 
 
