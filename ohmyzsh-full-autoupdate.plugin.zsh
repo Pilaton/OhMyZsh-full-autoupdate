@@ -6,8 +6,8 @@
 # Description:  Plugin for Oh My ZSH that automatically updates your custom plugins and themes.
 #
 #      Author:  Pilaton
-#      GitHub:  https://github.com/Pilaton/MacSync
-#        Bugs:  https://github.com/Pilaton/MacSync/issues
+#      GitHub:  https://github.com/Pilaton/OhMyZsh-full-autoupdate
+#        Bugs:  https://github.com/Pilaton/OhMyZsh-full-autoupdate/issues
 #     License:  MIT
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,6 +25,7 @@ fi
 #######################################
 if [[ -n $(command -v tput) ]]; then
   bold=$(tput bold)
+  colorRed=$(tput setaf 1)
   colorGreen=$(tput setaf 2)
   colorYellow=$(tput setaf 3)
   colorBlue=$(tput setaf 4)
