@@ -152,6 +152,16 @@ omzFullUpdate() {
     local packageName=$(basename "$packageDir")
 
     printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
+
+    # Check if on a branch (not detached HEAD/tag)
+    local current_branch
+    current_branch=$(git -C "$packageDir" symbolic-ref --short HEAD 2>/dev/null)
+
+    if [[ -z "$current_branch" ]]; then
+      printf '%sSkipping %s (detached HEAD/tag)%s\n\n' "$colorYellow" "$packageName" "$reset"
+      continue
+    fi
+
     if ! git -C "$packageDir" pull "$OMZ_FULL_AUTOUPDATE_REMOTE"; then
       printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
     fi
