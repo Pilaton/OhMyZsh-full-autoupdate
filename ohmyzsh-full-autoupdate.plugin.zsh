@@ -14,10 +14,14 @@
 
 
 #######################################
-# If our label exists in the file "${ZSH_CACHE_DIR}/.zsh-update", skip updating plugins and themes
+# Global variables
 #######################################
-if [[ $(grep "LABEL_FULL_AUTOUPDATE" "${ZSH_CACHE_DIR}/.zsh-update") ]]; then
-  return 
+typeset -g _omzfu_cache_dir="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh}"
+typeset -g _omzfu_update_file="${_omzfu_cache_dir}/.zsh-update"
+
+# If our label exists, skip updating plugins and themes
+if [[ -r "$_omzfu_update_file" ]] && grep -q 'LABEL_FULL_AUTOUPDATE' "$_omzfu_update_file" 2>/dev/null; then
+  return
 fi
 
 #######################################
@@ -70,15 +74,27 @@ printf "${colorYellow}--------------------------------------${reset}\n"
 printf '\n'
 
 #######################################
-# Getting url for a package on the GitHub website.
+# Getting URL for a package on GitHub.
+# Converts SSH URLs to HTTPS format.
 # Arguments:
-#   [text...] Path to the .git folder in the local package directory
+#   $1 - Path to the .git folder in the local package directory
 # Outputs:
-#   [text...] Url
+#   URL (empty string if failed)
 #######################################
 _getUrlGithub() {
-  local url=$(grep 'url =' "$1/config" | grep -o 'https://\S*' | sed 's/\.git//')
-  echo $url
+  local gitDir="$1"
+  local url
+
+  # Get the URL for the remote repository (origin)
+  url=$(git -C "${gitDir:h}" remote get-url origin 2>/dev/null) || return 0
+
+  # Remove trailing .git and convert SSH URL to HTTPS
+  url="${url%.git}"
+  if [[ "$url" == git@github.com:* ]]; then
+    url="https://github.com/${url#git@github.com:}"
+  fi
+
+  echo "$url"
 }
 
 #######################################
@@ -99,10 +115,10 @@ _getNameCustomCategory() {
 #######################################
 # Saving a label that determines if plugins need to be updated.
 # Globals:
-#   ZSH_CACHE_DIR
+#   _omzfu_update_file
 #######################################
 _savingLabel() {
-  echo "\nLABEL_FULL_AUTOUPDATE=true" >> "${ZSH_CACHE_DIR}/.zsh-update"
+  printf '\n%s\n' 'LABEL_FULL_AUTOUPDATE=true' >> "$_omzfu_update_file"
 }
 
 #######################################
@@ -113,7 +129,7 @@ _savingLabel() {
 omzFullUpdate() {
   local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
 
-  for package in ${arrayPackages[@]}; do
+  for package in "${arrayPackages[@]}"; do
     local urlGithub=$(_getUrlGithub "$package")
     local nameCustomCategory=$(_getNameCustomCategory "$package")
     local packageDir=$(dirname "$package")
@@ -123,7 +139,7 @@ omzFullUpdate() {
     if ! git -C "$packageDir" pull; then
       printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
     fi
-      printf '\n'
+    printf '\n'
   done
 
   _savingLabel
