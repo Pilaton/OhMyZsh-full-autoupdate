@@ -13,28 +13,40 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+
 #######################################
-# Global variables
+# Config (optional)
 #######################################
-typeset -g _omzfu_cache_dir="${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh}"
-typeset -g _omzfu_update_file="${_omzfu_cache_dir}/.zsh-update"
+: "${OMZ_FULL_AUTOUPDATE_REMOTE:=origin}"   # remote name to show/pull from
+
+
+#######################################
+# Skip if label exists in OMZ cache update file
+#######################################
+typeset -g _omz_update_file="${ZSH_CACHE_DIR:-${HOME}/.cache/zsh}/.zsh-update"
 
 # If our label exists, skip updating plugins and themes
-if [[ -r "$_omzfu_update_file" ]] && grep -q 'LABEL_FULL_AUTOUPDATE' "$_omzfu_update_file" 2>/dev/null; then
-  return
+if [[ -r "$_omz_update_file" ]] && grep -q 'LABEL_FULL_AUTOUPDATE' "$_omz_update_file" 2>/dev/null; then
+  return 0
 fi
 
+# Ensure cache dir exists (and update file parent)
+mkdir -p -- "${_omz_update_file:h}" 2>/dev/null || true
+
+
 #######################################
-# Set colors if "tput" is present in the system
+# Colors (only if tty + tput available)
 #######################################
-if [[ -n $(command -v tput) ]]; then
-  bold=$(tput bold)
-  colorRed=$(tput setaf 1)
-  colorGreen=$(tput setaf 2)
-  colorYellow=$(tput setaf 3)
-  colorBlue=$(tput setaf 4)
-  reset=$(tput sgr0)
+typeset -g bold="" colorRed="" colorGreen="" colorYellow="" colorBlue="" reset=""
+if [[ -t 1 ]] && command -v tput >/dev/null 2>&1; then
+  bold="$(tput bold 2>/dev/null || true)"
+  colorRed="$(tput setaf 1 2>/dev/null || true)"
+  colorGreen="$(tput setaf 2 2>/dev/null || true)"
+  colorYellow="$(tput setaf 3 2>/dev/null || true)"
+  colorBlue="$(tput setaf 4 2>/dev/null || true)"
+  reset="$(tput sgr0 2>/dev/null || true)"
 fi
+
 
 #######################################
 # Welcome screen
@@ -74,19 +86,19 @@ printf "${colorYellow}--------------------------------------${reset}\n"
 printf '\n'
 
 #######################################
-# Getting URL for a package on GitHub.
-# Converts SSH URLs to HTTPS format.
+# Getting URL for a package on GitHub (best effort).
 # Arguments:
-#   $1 - Path to the .git folder in the local package directory
+#   $1: path to .git directory
 # Outputs:
-#   URL (empty string if failed)
+#   prints normalized URL (prefer https), may print raw remote URL if non-GitHub.
 #######################################
 _getUrlGithub() {
+  emulate -L zsh
   local gitDir="$1"
   local url
 
   # Get the URL for the remote repository (origin)
-  url=$(git -C "${gitDir:h}" remote get-url origin 2>/dev/null) || return 0
+  url=$(git -C "${gitDir:h}" remote get-url "$OMZ_FULL_AUTOUPDATE_REMOTE" 2>/dev/null) || return 0
 
   # Remove trailing .git and convert SSH URL to HTTPS
   url="${url%.git}"
@@ -105,6 +117,7 @@ _getUrlGithub() {
 #   [text...] Name category
 #######################################
 _getNameCustomCategory() {
+  emulate -L zsh
   local path=$1
   case $path in
     *"plugins"*) echo "Plugin" ;;
@@ -113,21 +126,24 @@ _getNameCustomCategory() {
 }
 
 #######################################
-# Saving a label that determines if plugins need to be updated.
+# Save label (so OMZ update logic can skip next runs).
 # Globals:
-#   _omzfu_update_file
+#   _omz_update_file
 #######################################
 _savingLabel() {
-  printf '\n%s\n' 'LABEL_FULL_AUTOUPDATE=true' >> "$_omzfu_update_file"
+  emulate -L zsh
+  printf '\n%s\n' 'LABEL_FULL_AUTOUPDATE=true' >> "$_omz_update_file" 2>/dev/null || true
 }
 
 #######################################
-# We get a list of available plugins and update them.
+# Main update
 # Globals:
 #   ZSH_CUSTOM
 #######################################
 omzFullUpdate() {
-  local arrayPackages=($(find -L "${ZSH_CUSTOM}" -type d -name ".git"))
+  emulate -L zsh
+  local custom="${ZSH_CUSTOM:-$ZSH/custom}"
+  local arrayPackages=($(find -L "${custom}" -type d -name ".git"))
 
   for package in "${arrayPackages[@]}"; do
     local urlGithub=$(_getUrlGithub "$package")
@@ -136,7 +152,7 @@ omzFullUpdate() {
     local packageName=$(basename "$packageDir")
 
     printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
-    if ! git -C "$packageDir" pull; then
+    if ! git -C "$packageDir" pull "$OMZ_FULL_AUTOUPDATE_REMOTE"; then
       printf '%sError updating %s%s\n' "$colorRed" "$packageName" "$reset"
     fi
     printf '\n'
