@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.3.0...v1.3.1) (2025-12-14)
+
+
+### Bug Fixes
+
+* skip plugins on detached HEAD instead of failing ([4598ac8](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/4598ac8205039b13b577602c8f245a062a0d18be)), closes [#21](https://github.com/Pilaton/OhMyZsh-full-autoupdate/issues/21)
+
 ## [1.3.0](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.2.2...v1.3.0) (2025-12-14)
 
 
