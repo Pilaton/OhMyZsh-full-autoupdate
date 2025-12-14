@@ -1,15 +1,36 @@
-name: 🚀 release
+name: CI
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  release-please:
+  shellcheck:
+    name: 🔍 ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - name: 🕺 release
-        uses: GoogleCloudPlatform/release-please-action@v4
+      - name: 📥 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔍 Run ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        env:
+          SHELLCHECK_OPTS: -e SC1071 -e SC2148
+        with:
+          scandir: "."
+          severity: warning
+
+  release-please:
+    name: 🚀 Release
+    runs-on: ubuntu-latest
+    needs: shellcheck
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: 🕺 Release
+        uses: googleapis/release-please-action@v4
         with:
           release-type: simple
