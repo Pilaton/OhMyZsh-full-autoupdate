@@ -51,7 +51,7 @@ fi
 #######################################
 # Welcome screen
 #######################################
-rainbow=(
+typeset -a rainbow=(
   "$(printf '\033[38;5;196m')"
   "$(printf '\033[38;5;202m')"
   "$(printf '\033[38;5;226m')"
@@ -60,12 +60,12 @@ rainbow=(
   "$(printf '\033[38;5;093m')"
   "$(printf '\033[38;5;163m')"
 )
-threeColours=(
+typeset -a threeColours=(
   "$(printf '\033[38;5;226m')"
   "$(printf '\033[38;5;082m')"
   "$(printf '\033[38;5;163m')"
 )
-resetPrintf=$(printf '\033[0m')
+typeset resetPrintf=$(printf '\033[0m')
 
 printf '%s         %s__      %s           %s        %s       %s     %s__   %s        \n' $rainbow $resetPrintf
 printf '%s  ____  %s/ /_    %s ____ ___  %s__  __  %s ____  %s_____%s/ /_  %s        \n' $rainbow $resetPrintf
@@ -81,9 +81,12 @@ printf '%s / __/ /_/ / / /____%s/ /_/ / /_/ / /_/ /_/ /%s /_/ / /_/ / /_/ / /_/ 
 printf '%s/_/  \__,_/_/_/     %s\__,_/\__,_/\__/\____/%s\__,_/ .___/\__,_/\__,_/\__/\___/%s  \n' $threeColours $resetPrintf
 printf '%s                    %s                      %s    /_/                          %s  \n' $threeColours $resetPrintf
 printf '\n'
-printf "${bold}Updating plugins and themes Oh My ZSH${reset}\n"
-printf "${colorYellow}--------------------------------------${reset}\n"
+printf '%s\n' "${bold}Updating plugins and themes Oh My ZSH${reset}"
+printf '%s\n' "${colorYellow}--------------------------------------${reset}"
 printf '\n'
+
+# Clean up banner variables - no longer needed
+unset rainbow threeColours resetPrintf
 
 #######################################
 # Getting URL for a package on GitHub (best effort).
@@ -122,6 +125,7 @@ _getNameCustomCategory() {
   case $path in
     *"plugins"*) echo "Plugin" ;;
     *"themes"*)  echo "Theme" ;;
+    *)           echo "Package" ;;  # Fallback for non-standard paths
   esac
 }
 
@@ -143,21 +147,22 @@ _savingLabel() {
 omzFullUpdate() {
   emulate -L zsh
   local custom="${ZSH_CUSTOM:-$ZSH/custom}"
-  local arrayPackages=($(find -L "${custom}" -type d -name ".git"))
+  local -a arrayPackages
+  arrayPackages=(${(f)"$(find -L "${custom}" -type d -name ".git" 2>/dev/null)"})
 
+  local package
   for package in "${arrayPackages[@]}"; do
+    [[ -z "$package" ]] && continue
+
     local urlGithub=$(_getUrlGithub "$package")
     local nameCustomCategory=$(_getNameCustomCategory "$package")
-    local packageDir=$(dirname "$package")
-    local packageName=$(basename "$packageDir")
+    local packageDir="${package:h}"  # Use zsh :h modifier instead of dirname
+    local packageName="${packageDir:t}"  # Use zsh :t modifier instead of basename
 
     printf '%sUpdating %s — %s -> %s\n' "$colorYellow" "$nameCustomCategory" "$colorGreen$packageName$reset" "$colorBlue$urlGithub$reset"
 
-    # Check if on a branch (not detached HEAD/tag)
-    local current_branch
-    current_branch=$(git -C "$packageDir" symbolic-ref --short HEAD 2>/dev/null)
-
-    if [[ -z "$current_branch" ]]; then
+    # Check if on a branch (not detached HEAD/tag) - only check exit code, no variable needed
+    if ! git -C "$packageDir" symbolic-ref --short HEAD >/dev/null 2>&1; then
       printf '%sSkipping %s (detached HEAD/tag)%s\n\n' "$colorYellow" "$packageName" "$reset"
       continue
     fi
