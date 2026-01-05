@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.3.1...v1.3.2) (2026-01-05)
+
+
+### Bug Fixes
+
+* resolve xtrace debug output and plugin name display issues ([7a559e5](https://github.com/Pilaton/OhMyZsh-full-autoupdate/commit/7a559e58c900c82d9c056d757f9dacb36ce4f832))
+
 ## [1.3.1](https://github.com/Pilaton/OhMyZsh-full-autoupdate/compare/v1.3.0...v1.3.1) (2025-12-14)
 
 
