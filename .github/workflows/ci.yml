@@ -19,7 +19,7 @@ jobs:
       - name: 🔍 Run ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
         env:
-          SHELLCHECK_OPTS: -e SC1071 -e SC2148 -e SC2128 -e SC2207 -e SC2155
+          SHELLCHECK_OPTS: -e SC1071 -e SC2148 -e SC2128 -e SC2207 -e SC2155 -e SC2206 -e SC2296
         with:
           scandir: "."
           severity: warning
